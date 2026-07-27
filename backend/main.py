@@ -5,9 +5,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from database import engine, get_db
 from models import Base, User, ChatHistory, CollegeInformation
 
+
 app = FastAPI(title="CampusAI Backend")
 
-# Allow Frontend
+
+# Frontend Connection
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -19,16 +21,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Create database tables
+
+# Create Database Tables
 Base.metadata.create_all(bind=engine)
 
 
 @app.get("/")
 def home():
-    return {"message": "CampusAI Backend Running"}
+    return {
+        "message": "CampusAI Backend Running"
+    }
 
 
-# Create User API
+# Create User
 @app.post("/users")
 def create_user(
     name: str,
@@ -54,10 +59,12 @@ def create_user(
 
     except Exception as e:
         db.rollback()
-        return {"error": str(e)}
+        return {
+            "error": str(e)
+        }
 
 
-# Save Chat History API
+# Save Chat History
 @app.post("/chat")
 def save_chat(
     user_id: int,
@@ -83,32 +90,26 @@ def save_chat(
 
     except Exception as e:
         db.rollback()
-        return {"error": str(e)}
+        return {
+            "error": str(e)
+        }
 
 
-# Fetch Chat History API
+# Get Chat History
 @app.get("/chat/{user_id}")
 def get_chat_history(
     user_id: int,
     db: Session = Depends(get_db)
 ):
+
     chats = db.query(ChatHistory).filter(
         ChatHistory.user_id == user_id
     ).all()
 
-    return [
-        {
-            "id": chat.id,
-            "user_id": chat.user_id,
-            "question": chat.question,
-            "answer": chat.answer,
-            "created_at": chat.created_at
-        }
-        for chat in chats
-    ]
+    return chats
 
 
-# Add College Information API
+# Add College Information
 @app.post("/college-info")
 def add_college_info(
     title: str,
@@ -116,37 +117,33 @@ def add_college_info(
     db: Session = Depends(get_db)
 ):
     try:
-        college_info = CollegeInformation(
+        info = CollegeInformation(
             title=title,
             description=description
         )
 
-        db.add(college_info)
+        db.add(info)
         db.commit()
-        db.refresh(college_info)
+        db.refresh(info)
 
         return {
             "message": "College information added successfully",
-            "id": college_info.id
+            "id": info.id
         }
 
     except Exception as e:
         db.rollback()
-        return {"error": str(e)}
+        return {
+            "error": str(e)
+        }
 
 
-# Fetch College Information API
+# Get College Information
 @app.get("/college-info")
 def get_college_info(
     db: Session = Depends(get_db)
 ):
+
     data = db.query(CollegeInformation).all()
 
-    return [
-        {
-            "id": info.id,
-            "title": info.title,
-            "description": info.description
-        }
-        for info in data
-    ]
+    return data
