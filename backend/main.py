@@ -5,9 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from database import engine, get_db
 from models import Base, User, ChatHistory, CollegeInformation
 
-
 app = FastAPI()
-
 
 # Frontend connection allow
 app.add_middleware(
@@ -18,17 +16,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 # Create database tables
 Base.metadata.create_all(bind=engine)
-
 
 @app.get("/")
 def home():
     return {
         "message": "CampusAI Backend Running"
     }
-
 
 # Create User API
 @app.post("/users")
@@ -60,7 +55,6 @@ def create_user(
             "error": str(e)
         }
 
-
 # Save Chat History API
 @app.post("/chat")
 def save_chat(
@@ -91,7 +85,6 @@ def save_chat(
             "error": str(e)
         }
 
-
 # Fetch Chat History API
 @app.get("/chat/{user_id}")
 def get_chat_history(
@@ -112,7 +105,6 @@ def get_chat_history(
         }
         for chat in chats
     ]
-
 
 # Add College Information API
 @app.post("/college-info")
@@ -141,7 +133,6 @@ def add_college_info(
         return {
             "error": str(e)
         }
-
 
 # Fetch College Information API
 @app.get("/college-info")
