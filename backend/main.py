@@ -5,12 +5,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from database import engine, get_db
 from models import Base, User, ChatHistory, CollegeInformation
 
-app = FastAPI()
+app = FastAPI(title="CampusAI Backend")
 
-# Frontend connection allow
+# Allow Frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:5174"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -19,11 +22,11 @@ app.add_middleware(
 # Create database tables
 Base.metadata.create_all(bind=engine)
 
+
 @app.get("/")
 def home():
-    return {
-        "message": "CampusAI Backend Running"
-    }
+    return {"message": "CampusAI Backend Running"}
+
 
 # Create User API
 @app.post("/users")
@@ -51,9 +54,8 @@ def create_user(
 
     except Exception as e:
         db.rollback()
-        return {
-            "error": str(e)
-        }
+        return {"error": str(e)}
+
 
 # Save Chat History API
 @app.post("/chat")
@@ -81,9 +83,8 @@ def save_chat(
 
     except Exception as e:
         db.rollback()
-        return {
-            "error": str(e)
-        }
+        return {"error": str(e)}
+
 
 # Fetch Chat History API
 @app.get("/chat/{user_id}")
@@ -105,6 +106,7 @@ def get_chat_history(
         }
         for chat in chats
     ]
+
 
 # Add College Information API
 @app.post("/college-info")
@@ -130,9 +132,8 @@ def add_college_info(
 
     except Exception as e:
         db.rollback()
-        return {
-            "error": str(e)
-        }
+        return {"error": str(e)}
+
 
 # Fetch College Information API
 @app.get("/college-info")
